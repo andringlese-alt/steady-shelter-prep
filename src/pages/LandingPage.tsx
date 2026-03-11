@@ -65,10 +65,10 @@ export default function LandingPage() {
           </p>
           <a href={STRIPE_LINK}>
             <Button variant="hero" size="lg" className="text-lg px-10 py-6 rounded-lg">
-              Acquista la Guida — €9,90
+              Acquista la Guida — €9,99
             </Button>
           </a>
-          <p className="mt-2 text-sm text-muted-foreground"><span className="line-through">€19,90</span> → <span className="font-semibold text-foreground">€9,90</span> — offerta di lancio</p>
+          <p className="mt-2 text-sm text-muted-foreground"><span className="line-through">€19,99</span> → <span className="font-semibold text-foreground">€9,99</span> — offerta di lancio</p>
           <p className="mt-2 text-sm text-muted-foreground">Download immediato dopo il pagamento • PDF stampabile</p>
         </div>
       </section>
