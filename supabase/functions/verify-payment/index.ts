@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import Stripe from "https://esm.sh/stripe@14.25.0?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -7,81 +8,90 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const jsonHeaders = {
+  ...corsHeaders,
+  "Content-Type": "application/json",
+};
+
+const jsonResponse = (status: number, payload: Record<string, string>) =>
+  new Response(JSON.stringify(payload), { status, headers: jsonHeaders });
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    const { session_id } = await req.json();
+    const url = new URL(req.url);
+    let sessionId = url.searchParams.get("session_id");
 
-    if (!session_id) {
-      return new Response(
-        JSON.stringify({ error: "session_id is required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    if (!sessionId && req.method !== "GET") {
+      try {
+        const body = await req.json();
+        if (typeof body?.session_id === "string") {
+          sessionId = body.session_id;
+        }
+      } catch {
+        // Ignore invalid JSON body and rely on query string.
+      }
     }
 
-    // Verify Stripe payment
+    if (!sessionId) {
+      return jsonResponse(400, { error: "session_id is required" });
+    }
+
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) {
-      return new Response(
-        JSON.stringify({ error: "Stripe not configured" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return jsonResponse(500, { error: "Stripe not configured" });
     }
 
-    const stripeRes = await fetch(
-      `https://api.stripe.com/v1/checkout/sessions/${session_id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${stripeKey}`,
-        },
-      }
-    );
+    const stripe = new Stripe(stripeKey, {
+      apiVersion: "2024-06-20",
+    });
 
-    if (!stripeRes.ok) {
-      return new Response(
-        JSON.stringify({ error: "Invalid session" }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    let session;
+
+    try {
+      session = await stripe.checkout.sessions.retrieve(sessionId);
+    } catch (error) {
+      console.error("Stripe session retrieve error:", error);
+      return jsonResponse(403, { error: "Accesso non autorizzato" });
     }
-
-    const session = await stripeRes.json();
 
     if (session.payment_status !== "paid") {
-      return new Response(
-        JSON.stringify({ error: "Payment not completed" }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return jsonResponse(403, { error: "Accesso non autorizzato" });
     }
 
-    // Generate signed URL for the PDF
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      return jsonResponse(500, { error: "Storage not configured" });
+    }
+
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const candidatePaths = [
+      "guides/guida-kitpronto.pdf",
+      "Guida-Preparazione-Emergenze.pdf.pdf",
+    ];
 
-    const { data, error } = await supabase.storage
-      .from("digital-products")
-      .createSignedUrl("guides/guida-kitpronto.pdf", 600);
+    for (const filePath of candidatePaths) {
+      const { data, error } = await supabase.storage
+        .from("digital-products")
+        .createSignedUrl(filePath, 600);
 
-    if (error || !data?.signedUrl) {
-      console.error("Storage error:", error);
-      return new Response(
-        JSON.stringify({ error: "Could not generate download link" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      if (data?.signedUrl) {
+        return jsonResponse(200, { download_url: data.signedUrl });
+      }
+
+      if (error) {
+        console.error(`Storage signed URL error for ${filePath}:`, error);
+      }
     }
 
-    return new Response(
-      JSON.stringify({ download_url: data.signedUrl }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return jsonResponse(500, { error: "Could not generate download link" });
   } catch (err) {
     console.error("Error:", err);
-    return new Response(
-      JSON.stringify({ error: "Internal server error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return jsonResponse(500, { error: "Internal server error" });
   }
 });
