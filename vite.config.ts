@@ -24,6 +24,7 @@ export default defineConfig(({ mode }) => ({
       input: {
         main: path.resolve(__dirname, "index.html"),
         download: path.resolve(__dirname, "download.html"),
+        grazie: path.resolve(__dirname, "public/grazie.html"),
       },
     },
   },
