@@ -149,7 +149,8 @@ export default function LandingPage() {
           </p>
           <div className="bg-card rounded-xl p-8" style={{ boxShadow: "var(--shadow-elevated)" }}>
             <p className="text-sm text-muted-foreground uppercase tracking-wider mb-2 font-semibold">Prezzo di lancio</p>
-            <p className="text-5xl font-display font-bold text-foreground mb-1">€19,90</p>
+            <p className="text-5xl font-display font-bold text-foreground mb-1">€9,90</p>
+            <p className="text-muted-foreground mb-1"><span className="line-through text-sm">€19,90</span></p>
             <p className="text-muted-foreground mb-6">pagamento unico • nessun abbonamento</p>
             <a href={STRIPE_LINK} className="block">
               <Button variant="cta" size="lg" className="w-full text-lg py-6 rounded-lg">
