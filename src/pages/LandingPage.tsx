@@ -65,10 +65,10 @@ export default function LandingPage() {
           </p>
           <a href={STRIPE_LINK}>
             <Button variant="hero" size="lg" className="text-lg px-10 py-6 rounded-lg">
-              Acquista la Guida — €9,90
+              Acquista la Guida — €9,99
             </Button>
           </a>
-          <p className="mt-2 text-sm text-muted-foreground"><span className="line-through">€19,90</span> → <span className="font-semibold text-foreground">€9,90</span> — offerta di lancio</p>
+          <p className="mt-2 text-sm text-muted-foreground"><span className="line-through">€19,99</span> → <span className="font-semibold text-foreground">€9,99</span> — offerta di lancio</p>
           <p className="mt-2 text-sm text-muted-foreground">Download immediato dopo il pagamento • PDF stampabile</p>
         </div>
       </section>
@@ -149,8 +149,8 @@ export default function LandingPage() {
           </p>
           <div className="bg-card rounded-xl p-8" style={{ boxShadow: "var(--shadow-elevated)" }}>
             <p className="text-sm text-muted-foreground uppercase tracking-wider mb-2 font-semibold">Prezzo di lancio</p>
-            <p className="text-5xl font-display font-bold text-foreground mb-1">€9,90</p>
-            <p className="text-muted-foreground mb-1"><span className="line-through text-sm">€19,90</span></p>
+            <p className="text-5xl font-display font-bold text-foreground mb-1">€9,99</p>
+            <p className="text-muted-foreground mb-1"><span className="line-through text-sm">€19,99</span></p>
             <p className="text-muted-foreground mb-6">pagamento unico • nessun abbonamento</p>
             <a href={STRIPE_LINK} className="block">
               <Button variant="cta" size="lg" className="w-full text-lg py-6 rounded-lg">
