@@ -69,9 +69,7 @@ export default function LandingPage() {
             </Button>
           </a>
           <p className="mt-2 text-sm text-muted-foreground"><span className="line-through">€19,90</span> → <span className="font-semibold text-foreground">€9,90</span> — offerta di lancio</p>
-            </Button>
-          </a>
-          <p className="mt-4 text-sm text-muted-foreground">Download immediato dopo il pagamento • PDF stampabile</p>
+          <p className="mt-2 text-sm text-muted-foreground">Download immediato dopo il pagamento • PDF stampabile</p>
         </div>
       </section>
 
