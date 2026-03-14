@@ -2,7 +2,7 @@ import { Shield, CheckCircle, ChevronDown, Zap, CloudLightning, Droplets, Radio,
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
-const STRIPE_LINK = "https://buy.stripe.com/7sY6oHg37gTLfrea2t3AY00";
+const STRIPE_LINK = "https://buy.stripe.com/bJe6oH4kp6f70wka2t3AY01";
 
 const faqs = [
   {
